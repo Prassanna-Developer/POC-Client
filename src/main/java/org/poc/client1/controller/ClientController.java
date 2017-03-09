@@ -6,6 +6,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.poc.client1.util.CookieUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -15,10 +17,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class WelcomeController {
+public class ClientController {
 
 	@Autowired
 	private CookieUtil cookieUtil;
+	
+	private final Logger logger = LoggerFactory.getLogger(ClientController.class);
 
 	@Value("${sso.app.login.url}")
 	private String loginFormUrl;
@@ -28,7 +32,7 @@ public class WelcomeController {
 
 	@RequestMapping(value = "/authorize", method = RequestMethod.GET)
 	public ModelAndView authorize(@RequestParam String jwtToken) {
-		System.out.println("WelcomeController.welcome() > " + jwtToken);
+		logger.info("Token {} from the request",jwtToken);
 		return new ModelAndView("display.html");
 	}
 

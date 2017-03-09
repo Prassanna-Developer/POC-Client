@@ -37,14 +37,8 @@ public class AuthenticationTokenFilterImpl extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-//        String queryString = ((HttpServletRequest) request).getQueryString();
-        
-//        if (queryString!=null) {
-//			String authToken = queryString.substring((queryString).lastIndexOf('=') + 1);
+    		String authToken = getTokenFromCookie(request, response);
     	
-    	String  authToken = cookieUtil.getToken(request);
-			// authToken.startsWith("Bearer ")
-			// String authToken = header.substring(7);
 			String username = jwtTokenUtil.getUsernameFromToken(authToken);
 			logger.info("checking authentication for user " + username);
 			if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
@@ -63,9 +57,18 @@ public class AuthenticationTokenFilterImpl extends OncePerRequestFilter {
 					SecurityContextHolder.getContext().setAuthentication(authentication);
 					
 				}
-//			} 
-		}
+			} 
 		chain.doFilter(request, response);
     }
+
+	private String getTokenFromCookie(HttpServletRequest request, HttpServletResponse response) {
+		String  authToken = cookieUtil.getToken(request);
+    	String queryString = ((HttpServletRequest) request).getQueryString();
+    	if((authToken == null || authToken.isEmpty()) && queryString!=null) {
+    		authToken = queryString.substring((queryString).lastIndexOf('=') + 1);
+    		cookieUtil.createCookie(response, authToken);
+    	}
+		return authToken;
+	}
     
 }
